@@ -10,6 +10,25 @@
 
 #include "main.h"
 
+typedef struct{
+	//pointer to the next task
+	void (*pTask)(void);
+	//delay (ticks)
+	uint32_t Delay;
+	//Interval(ticks) between subsequent runs
+	uint32_t Period;
+	//Incremented (by scheduler when task is due to execute)
+	uint8_t RunMe;
+
+	uint32_t TaskID;
+} sTask;
+
+#define SCH_MAX_TASKS										40
+#define NO_TASK_ID 											0
+
+sTask SCH_tasks_G[SCH_MAX_TASKS];
+
+
 void SCH_Init (void );
 
 void SCH_Update(void );
@@ -18,7 +37,7 @@ unsigned char SCH_Add_Task(void (* pFunction)() , unsigned int DELAY, unsigned i
 
 void SCH_Dispatch_Tasks(void );
 
-unsigned char SCH_Delete_Task(const tByte TASK_INDEX);
+unsigned char SCH_Delete_Task(const unsigned char TASK_INDEX);
 
 void SCH_Go_To_Sleep(void );
 

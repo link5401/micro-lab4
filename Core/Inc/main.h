@@ -48,6 +48,19 @@ extern "C" {
 /* Exported macro ------------------------------------------------------------*/
 /* USER CODE BEGIN EM */
 
+
+#define RETURN_NORMAL 		0
+#define RETURN_ERROR  		1
+
+
+#define ERROR_SCH_TOO_MANY_TASKS							1
+#define ERROR_SCH_CANNOT_DELETE_TASK						2
+#define ERROR_SCH_WAITING_FOR_SLAVE_TO_ACK					3
+#define ERROR_SCH_WAITING_FOR_START_COMMAND_FROM_MASTER		4
+#define ERROR SCH_ONE_OR_MORE_SLAVES_DID_NOT_START			5
+#define ERROR_SCH_LOST_SLAVE								6
+#define ERROR_SCH_CAN_BUS_ERROR								7
+#define	ERROR_I2C_WRITE_BYTE_AT24C64						8
 /* USER CODE END EM */
 
 /* Exported functions prototypes ---------------------------------------------*/
