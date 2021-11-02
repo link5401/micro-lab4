@@ -1,15 +1,15 @@
 #include "watch_dog.h"
 #include "main.h"
 //
-////IWDG_HandleTypeDef hiwdg;
-////static uint32_t counter_for_watchdog = 0;
+//IWDG_HandleTypeDef hiwdg;
+//static uint32_t counter_for_watchdog = 0;
 //
-////void MX_IWDG_Init(void){
-////	hiwdg.Instance = IWDG;
-////	hiwdg.Init.Prescaler = IWDG_PRESCALER_32;
-////	hiwdg.Init.Reload = 4095;
-////	if (HAL_IWDG_Init(&hiwdg) != HAL_OK){
-////		Error_Handler();
+//void MX_IWDG_Init(void){
+//	hiwdg.Instance = IWDG;
+//	hiwdg.Init.Prescaler = IWDG_PRESCALER_32;
+//	hiwdg.Init.Reload = 4095;
+//	if (HAL_IWDG_Init(&hiwdg) != HAL_OK){
+//		Error_Handler();
 ////	}
 ////}
 //
