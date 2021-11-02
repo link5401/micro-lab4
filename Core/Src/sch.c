@@ -6,7 +6,7 @@
  */
 #include "sch.h"
 #include "main.h"
-
+#define TIMER_CYCLE 10
 
 //static unsigned char Last_error_code_G;
 //static unsigned int Error_tick_count_G;
@@ -61,8 +61,8 @@ unsigned char SCH_Add_Task(void (*pFunction)(), unsigned int DELAY, unsigned int
 	}
 	//YESGAP CASE
 	SCH_tasks_G[Index].pTask 	= pFunction;
-	SCH_tasks_G[Index].Delay 	= DELAY;
-	SCH_tasks_G[Index].Period	= PERIOD;
+	SCH_tasks_G[Index].Delay 	= DELAY/TIMER_CYCLE;
+	SCH_tasks_G[Index].Period	= PERIOD/TIMER_CYCLE;
 	SCH_tasks_G[Index].RunMe	= 0;
 	return Index;
 }
