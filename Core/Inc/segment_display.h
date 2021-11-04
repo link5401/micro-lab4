@@ -12,10 +12,7 @@
 
 uint8_t update_value_segment(uint8_t value, int idx);
 void display_segment_number(int idx);
-void update7SEG(uint8_t index);
-void clear7SEG(void );
-void updateClockBuffer(int first, int second);
-
+void display0to9(void );
 
 
 #endif /* INC_SEGMENT_DISPLAY_H_ */
