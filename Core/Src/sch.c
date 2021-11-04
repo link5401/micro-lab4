@@ -104,16 +104,21 @@ unsigned char SCH_Add_Task(void (*pFunction)(), unsigned int DELAY, unsigned int
  *
  *
  */
+	currentTaskNumber++;
+	if(currentTaskNumber > SCH_MAX_TASKS) {
+		Error_code_G = ERROR_SCH_TOO_MANY_TASKS;
+		return SCH_MAX_TASKS;
+	}
 	if(!SCH_tasks_G[FIRST_INDEX].pTask){
 			SCH_tasks_G[FIRST_INDEX].pTask 	= pFunction;
 			SCH_tasks_G[FIRST_INDEX].Delay 	= DELAY/TIMER_CYCLE;
 			SCH_tasks_G[FIRST_INDEX].Period	= PERIOD/TIMER_CYCLE;
 			SCH_tasks_G[FIRST_INDEX].RunMe	= 0;
-			currentTaskNumber++;
+
 
 			return FIRST_INDEX;
 	} else{
-		currentTaskNumber++;
+
 		unsigned char index = currentTaskNumber - 1;
 		SCH_tasks_G[index].pTask 	= pFunction;
 		SCH_tasks_G[index].Delay 	= DELAY/TIMER_CYCLE;
