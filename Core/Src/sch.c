@@ -157,15 +157,24 @@ void SCH_Dispatch_Tasks(void){
 //	}
 //	//SCH_Report_Status();
 //	//SCH_Go_To_Sleep();
-		uint32_t totalDelay = 0;
-		for(uint8_t i = 0; i < currentTaskNumber; i++) totalDelay += SCH_tasks_G[i].Delay;
+	 uint32_t totalDelay = 0;
+	 for(uint8_t i = 0; i < currentTaskNumber; i++) totalDelay += SCH_tasks_G[i].Delay;
+	 //check run me as usual
 	 if(SCH_tasks_G[FIRST_INDEX].RunMe > 0) {
 		 (*SCH_tasks_G[FIRST_INDEX].pTask)();
 		 SCH_tasks_G[FIRST_INDEX].RunMe -=1;
-		 uint32_t fDelay = SCH_tasks_G[FIRST_INDEX].Delay;
-		 SCH_tasks_G[FIRST_INDEX].Delay = (fDelay + SCH_tasks_G[FIRST_INDEX].Period) - totalDelay;
-		 FIRST_INDEX = (FIRST_INDEX + 1) % currentTaskNumber;
+
+		 //check for period to delete
+		 if(SCH_tasks_G[FIRST_INDEX].Period == 0) SCH_Delete_Task(FIRST_INDEX);
+		 //adjust delay and set the next first index.
+		 else{
+			 uint32_t fDelay = SCH_tasks_G[FIRST_INDEX].Delay;
+			 SCH_tasks_G[FIRST_INDEX].Delay = (fDelay + SCH_tasks_G[FIRST_INDEX].Period) - totalDelay;
+			 FIRST_INDEX = (FIRST_INDEX + 1) % currentTaskNumber;
+		 }
 	 }
+	 	//SCH_Report_Status();
+	 	SCH_Go_To_Sleep();
 
 }
 
@@ -184,7 +193,7 @@ unsigned char SCH_Delete_Task(const unsigned char TASK_INDEX){
 
 // TODO
 void SCH_Go_To_Sleep(){
-
+	HAL_PWR_EnterSLEEPMode(PWR_LOWPOWERREGULATOR_ON, PWR_SLEEPENTRY_WFI);
 
 }
 

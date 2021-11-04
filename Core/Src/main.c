@@ -101,8 +101,8 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   led_init();
-  SCH_Add_Task(display0to9, 0, 1000);
   SCH_Add_Task(toggle_red, 500, 1000);
+  SCH_Add_Task(display0to9, 0, 1000);
   SCH_Add_Task(toggle_green, 1000, 1000);
 
   while (1)
