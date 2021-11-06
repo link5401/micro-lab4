@@ -32,7 +32,7 @@ void SCH_Init (void ){
  *
  */
 uint8_t FIRST_INDEX = 0;
-
+uint32_t TIME_STAMP = 0;
 void SCH_Update(void ){
 
 		if(SCH_tasks_G[FIRST_INDEX].pTask){
@@ -42,10 +42,11 @@ void SCH_Update(void ){
 //					SCH_tasks_G[FIRST_INDEX].Delay = SCH_tasks_G[FIRST_INDEX].Period;
 			} else SCH_tasks_G[FIRST_INDEX].Delay -=1;
 		}
-
+		TIME_STAMP += 1;
 }
 void HAL_TIM_PeriodElapsedCallback (TIM_HandleTypeDef *htim ) {
 	SCH_Update();
+
 }
 /////////////////////////////////////////////////////////////////////////////
 /*
@@ -70,6 +71,8 @@ void swapTask(sTask *t1, sTask *t2){
 
 }
 uint16_t currentTaskNumber = 0;
+
+uint32_t currentDelay = 0;
 
 unsigned char SCH_Add_Task(void (*pFunction)(), unsigned int DELAY, unsigned int PERIOD){
 //	unsigned char Index = 0;
@@ -118,25 +121,29 @@ unsigned char SCH_Add_Task(void (*pFunction)(), unsigned int DELAY, unsigned int
 
 			return FIRST_INDEX;
 	} else{
-
+		uint8_t finished = 0;
 		unsigned char index = currentTaskNumber - 1;
 		SCH_tasks_G[index].pTask 	= pFunction;
 		SCH_tasks_G[index].Delay 	= DELAY/TIMER_CYCLE;
 		SCH_tasks_G[index].Period	= PERIOD/TIMER_CYCLE;
 		SCH_tasks_G[index].RunMe	= 0;
-		uint32_t currentDelay = 0;
+		uint32_t totalDelay = currentDelay;
+	while(!finished){
 		for(int i = FIRST_INDEX; i < currentTaskNumber - 1; i++){
-			currentDelay+=SCH_tasks_G[i].Delay;
-				if(SCH_tasks_G[index].Delay >= currentDelay){
-					SCH_tasks_G[index].Delay -= currentDelay;
-				}
+			totalDelay+=SCH_tasks_G[i].Delay;
+				if(SCH_tasks_G[index].Delay >= totalDelay) continue;
 				else{
+					SCH_tasks_G[index].Delay -= (totalDelay - SCH_tasks_G[i].Delay);
+					SCH_tasks_G[i].Delay =  totalDelay;
 					swapTask(&SCH_tasks_G[i],&SCH_tasks_G[index]);
+					totalDelay = 0;
+					break;
 
-					return i;
 				}
 		}
-
+		SCH_tasks_G[index].Delay -= totalDelay;
+		finished = 1;
+		}
 		return index;
 	}
 
@@ -149,6 +156,7 @@ unsigned char SCH_Add_Task(void (*pFunction)(), unsigned int DELAY, unsigned int
  *  		in circular manner, adjust its delay.
  *
  */
+
 void SCH_Dispatch_Tasks(void){
 //	unsigned char Index;
 //	for(Index = 0; Index < SCH_MAX_TASKS; Index++){
@@ -162,21 +170,18 @@ void SCH_Dispatch_Tasks(void){
 //	}
 //	//SCH_Report_Status();
 //	//SCH_Go_To_Sleep();
-	 uint32_t totalDelay = 0;
-	 for(uint8_t i = 0; i < currentTaskNumber; i++) totalDelay += SCH_tasks_G[i].Delay;
+
 	 //check run me as usual
 	 if(SCH_tasks_G[FIRST_INDEX].RunMe > 0) {
 		 (*SCH_tasks_G[FIRST_INDEX].pTask)();
 		 SCH_tasks_G[FIRST_INDEX].RunMe -=1;
 
-		 //check for period to delete
-		 if(SCH_tasks_G[FIRST_INDEX].Period == 0) SCH_Delete_Task(FIRST_INDEX);
-		 //adjust delay and set the next first index.
-		 else{
-			 uint32_t fDelay = SCH_tasks_G[FIRST_INDEX].Delay;
-			 SCH_tasks_G[FIRST_INDEX].Delay = (fDelay + SCH_tasks_G[FIRST_INDEX].Period) - totalDelay;
-			 FIRST_INDEX = (FIRST_INDEX + 1) % currentTaskNumber;
-		 }
+		 uint32_t fPeriod = SCH_tasks_G[FIRST_INDEX].Period * TIMER_CYCLE;
+		 void  *fTask = SCH_tasks_G[FIRST_INDEX].pTask;
+		 currentDelay = TIME_STAMP;
+		 SCH_Delete_Task(FIRST_INDEX);
+
+		 SCH_Add_Task(fTask, (TIME_STAMP*TIMER_CYCLE) + fPeriod, fPeriod);
 	 }
 	 	//SCH_Report_Status();
 	 	SCH_Go_To_Sleep();
@@ -189,10 +194,11 @@ unsigned char SCH_Delete_Task(const unsigned char TASK_INDEX){
 		Error_code_G = ERROR_SCH_CANNOT_DELETE_TASK;
 		   Return_code = Error_code_G;
 	} else Return_code = 0;
-	SCH_tasks_G[TASK_INDEX].pTask 	= 0x0000;
-	SCH_tasks_G[TASK_INDEX].Delay 	= 0;
-	SCH_tasks_G[TASK_INDEX].Period 	= 0;
-	SCH_tasks_G[TASK_INDEX].RunMe	= 0;
+	//delete by actually eliminating the index
+	for(uint32_t i = TASK_INDEX; i < currentTaskNumber - 1; i++){
+		SCH_tasks_G[i] = SCH_tasks_G[i+1];
+	}
+	currentTaskNumber -= 1;
 	return Return_code;
 }
 
