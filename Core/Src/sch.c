@@ -27,7 +27,7 @@ void SCH_Init (void ){
 /////////////////////////////////////////////////////////////////////////////////////
 /*   ISR FUNCTION
  * 	 What it does: determines if a task is due to run: Yes ? RunMe++.
- * 	 													No? RunMe--
+ * 	 													No? Delay--
  *
  *
  */
@@ -129,7 +129,8 @@ unsigned char SCH_Add_Task(void (*pFunction)(), unsigned int DELAY, unsigned int
 		SCH_tasks_G[index].RunMe	= 0;
 		uint32_t totalDelay = currentDelay;
 	while(!finished){
-		for(int i = FIRST_INDEX; i < currentTaskNumber - 1; i++){
+		int i = FIRST_INDEX;
+		for(; i < currentTaskNumber - 1; i++){
 			totalDelay+=SCH_tasks_G[i].Delay;
 				if(SCH_tasks_G[index].Delay >= totalDelay) continue;
 				else{
@@ -141,8 +142,10 @@ unsigned char SCH_Add_Task(void (*pFunction)(), unsigned int DELAY, unsigned int
 
 				}
 		}
-		SCH_tasks_G[index].Delay -= totalDelay;
-		finished = 1;
+		if(i == currentTaskNumber - 1){
+			SCH_tasks_G[index].Delay -= totalDelay;
+			finished = 1;
+		} else i = FIRST_INDEX;
 		}
 		return index;
 	}

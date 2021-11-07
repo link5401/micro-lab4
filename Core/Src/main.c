@@ -103,7 +103,7 @@ int main(void)
   led_init();
   SCH_Add_Task(toggle_red, 1000, 1000);
   SCH_Add_Task(display0to9, 0, 1000);
-  SCH_Add_Task(toggle_green, 100, 1000);
+  SCH_Add_Task(toggle_green, 500, 1000);
 
 
 
